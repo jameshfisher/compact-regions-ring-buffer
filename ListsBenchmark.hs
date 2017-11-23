@@ -34,6 +34,5 @@ initialArray = Array.newArray (0, numCompacts) []
 
 main :: IO ()
 main = do
-  -- cmp <- Compact.compact c
   c <- initialArray
   mapM_ (pushMsg c) [0..msgCount]
