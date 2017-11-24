@@ -28,14 +28,10 @@ pushMsg chan highId = do
     let (bucketIndex :: Int, elementIndex :: Int) = divMod index msgsPerCompact
     oldBucketCompact :: Compact.Compact [Msg] <- Array.readArray chan bucketIndex
     let oldBucket :: [Msg] = Compact.getCompact oldBucketCompact
-    if elementIndex == 0
-      then do
-        let newBucket :: [Msg] = msg : oldBucket
-        newBucketCompact :: Compact.Compact [Msg] <- Compact.compactAdd oldBucketCompact newBucket
-        Array.writeArray chan bucketIndex newBucketCompact
-      else do
-        newBucketCompact :: Compact.Compact [Msg] <- Compact.compact [msg]
-        Array.writeArray chan bucketIndex newBucketCompact
+    newBucketCompact :: Compact.Compact [Msg] <- if elementIndex == 0
+                                                  then Compact.compact [msg]
+                                                  else Compact.compactAdd oldBucketCompact (msg : oldBucket)
+    Array.writeArray chan bucketIndex newBucketCompact
 
 initialArray :: IO (Array.IOArray Int (Compact.Compact [Msg]))
 initialArray = do
